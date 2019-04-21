@@ -13,6 +13,14 @@ This is a fairly simple image sending server. Images are captured using an OpenC
 
 Where S marks the beginning of an image, C a central part, E the end of an image. For each image there is a random two digit Id created. Each Chunk is numerated. The last 4 bytes of information is used by the receiving side to reconstruct an image.
 
+The repo contains two executable files.
+
+### main.py
+The `main.py` file starts the server and immediately captures images and sends them to the specified ip:port.
+
+### capture.py
+The `capture.py` program basically opens a live image stream where the capture area is specified with four points by simply clicking on the image starting with the top-left corner in clockwise direction.
+
 ## Requirements
 future==0.17.1
 numpy==1.16.2
