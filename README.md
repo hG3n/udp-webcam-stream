@@ -1,6 +1,8 @@
 # UDP Webcam Server
 Implemented using python version 3.7.2
 
+## Short description
+
 This is a fairly simple image sending server. Images are captured using an OpenCV `cv2.VideoCapture()` object. The default selected device has the id 0. The UDP server simply jpeg-encodes the image and splits it in `image_memory_size / max_packet_size` chunks. The size of each chunk is determined by the set maximum packet size + 5. Each transmitted chunk contains 5bytes of meta info preceeding the actual image byte array.
 
 | Chunk Type | Image Id | Chunk Id | Imagedata |
@@ -16,7 +18,7 @@ future==0.17.1
 numpy==1.16.2
 opencv-python==4.1.0.25
 
-Either install requirements manually or by calling `requirements.txt`
+Either install requirements manually or by pip calling the requirements.txt file.
 ```
 pip install -r requirements.txt
 ```
