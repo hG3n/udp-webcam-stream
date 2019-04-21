@@ -37,11 +37,11 @@ Specify a json file where a camera config is specified.
 
 Must meet the following structure:
 ```
-    {
-      "width": 640,
-      "height": 360,
-      "fps": 60
-    }
+{
+  "width": 640,
+  "height": 360,
+  "fps": 60
+}
 ```
 
 ### Receiver IP: '--ip'
