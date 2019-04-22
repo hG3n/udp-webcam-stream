@@ -21,9 +21,10 @@ def define_cutout(event, x, y, flags, param):
         p: Vector2 = Vector2(x, y)
         selection_rect.append(p)
 
-        if len(selection_rect) > 1:
-            global create_cutout
+        if len(selection_rect) > 3:
+            global create_cutout, cutout_rect_created
             create_cutout = True
+            cutout_rect_created = True
 
         print(x, y)
 
@@ -50,26 +51,26 @@ def main():
 
         # get
         global clicks, cutout_rect_created, visible_rect
-        if clicks % 2 == 0:
-            global create_cutout
-            if create_cutout:
-                tl: Vector2 = selection_rect[0]
-                tr: Vector2 = selection_rect[1]
-                t_distance: float = (tl - tr).magnitude()
-
-                bl_vec: Vector2 = tr.rotate_around(tl, -90)
-                br_vec: Vector2 = tl.rotate_around(tr, 90)
-
-                v_distance = t_distance / (16 / 9)
-
-                bl_f = get_point_on_vector(tl, bl_vec, v_distance)
-                br_f = get_point_on_vector(tr, br_vec, v_distance)
-
-                selection_rect.append(Vector2(int(br_f.x), int(br_f.y)))
-                selection_rect.append(Vector2(int(bl_f.x), int(bl_f.y)))
-
-                create_cutout = False
-                cutout_rect_created = True
+        # if clicks % 2 == 0:
+        #     global create_cutout
+        #     if create_cutout:
+                # tl: Vector2 = selection_rect[0]
+                # tr: Vector2 = selection_rect[1]
+                # t_distance: float = (tl - tr).magnitude()
+                #
+                # bl_vec: Vector2 = tr.rotate_around(tl, -90)
+                # br_vec: Vector2 = tl.rotate_around(tr, 90)
+                #
+                # v_distance = t_distance / (16 / 9)
+                #
+                # bl_f = get_point_on_vector(tl, bl_vec, v_distance)
+                # br_f = get_point_on_vector(tr, br_vec, v_distance)
+                #
+                # selection_rect.append(Vector2(int(br_f.x), int(br_f.y)))
+                # selection_rect.append(Vector2(int(bl_f.x), int(bl_f.y)))
+                #
+                # create_cutout = False
+                # cutout_rect_created = True
 
         for point in selection_rect:
             cv2.circle(frame, point.to_tuple(), 2, (255, 0, 0), 1)
@@ -108,7 +109,8 @@ def main():
             d['visible_rect'] = visible_rect
             json_string = json.dumps(d)
             with open('capture_area.json', 'w') as jsonfile:
-                jsonfile = json_string
+                jsonfile.write(json_string)
+                # jsonfile = json_string
             print("saving")
 
 

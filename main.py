@@ -6,7 +6,7 @@ import random
 import argparse
 import json
 
-import cv2 as cv
+import cv2
 import numpy as np
 
 sock: socket.socket = None
@@ -60,7 +60,7 @@ def send_jpeg_image(config: dict):
 
         # encode image to jpg
         with lock:
-            success, encoded = cv.imencode('.jpg', CURRENT_IMAGE)
+            success, encoded = cv2.imencode('.jpg', CURRENT_IMAGE)
 
         # if the image could not be encoded continue
         if not success:
@@ -134,17 +134,43 @@ def capture_stream(camera_config: dict, capture_area: dict):
     Image capture callback
     :return:
     """
-    print(camera_config)
-    print(capture_area)
-    VIDEO_CAPTURE = cv.VideoCapture(0)
-    VIDEO_CAPTURE.set(cv.CAP_PROP_FRAME_WIDTH, camera_config['width'])
-    VIDEO_CAPTURE.set(cv.CAP_PROP_FRAME_HEIGHT, camera_config['height'])
-    VIDEO_CAPTURE.set(cv.CAP_PROP_FPS, camera_config['fps'])
+    VIDEO_CAPTURE = cv2.VideoCapture(0)
+    if camera_config is not None:
+        VIDEO_CAPTURE.set(cv2.CAP_PROP_FRAME_WIDTH, camera_config['width'])
+        VIDEO_CAPTURE.set(cv2.CAP_PROP_FRAME_HEIGHT, camera_config['height'])
+        VIDEO_CAPTURE.set(cv2.CAP_PROP_FPS, camera_config['fps'])
+    else:
+        VIDEO_CAPTURE.set(cv2.CAP_PROP_FRAME_WIDTH, 1024.0)
+        VIDEO_CAPTURE.set(cv2.CAP_PROP_FRAME_HEIGHT, 768.0)
+        VIDEO_CAPTURE.set(cv2.CAP_PROP_FPS, 30.0)
+
+    selection_rect = capture_area['selected_rect']
+    visible_rect = capture_area['visible_rect']
+
+    cutout_available: bool = False
+    if selection_rect is not None and visible_rect is not None:
+        cutout_available = True
+
     while VIDEO_CAPTURE.isOpened():
         ret, frame = VIDEO_CAPTURE.read()
+
+        final_image = None
+        if cutout_available:
+            selection_rect_np = np.array(selection_rect, np.float32)
+            selection_rect_umat = cv2.UMat(selection_rect_np)
+
+            visible_rect_np = np.array(visible_rect, np.float32)
+            visible_rect_umat = cv2.UMat(visible_rect_np)
+
+            M = cv2.getPerspectiveTransform(selection_rect_umat, visible_rect_umat)
+            final_image = cv2.warpPerspective(frame, M, (640, 360))
+
         global CURRENT_IMAGE
         with lock:
-            CURRENT_IMAGE = frame
+            if final_image is None:
+                CURRENT_IMAGE = frame
+                continue
+            CURRENT_IMAGE = final_image
 
 
 def load_json_file(filename: str):
